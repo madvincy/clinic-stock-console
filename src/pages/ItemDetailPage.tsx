@@ -1,7 +1,11 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowLeft, Edit3, Package, X } from 'lucide-react'
 import { PageHeading } from '@/components/PageHeading'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { QueryErrorState } from '@/features/stock/components/QueryErrorState'
 import { EmptyState } from '@/features/stock/components/EmptyState'
 import { StockCorrectionForm } from '@/features/stock/components/StockCorrectionForm'
@@ -28,27 +32,29 @@ export default function ItemDetailPage() {
 
   const query = useGetProductQuery(numericId, { skip: !isValidId })
   const [updateStock, updateState] = useUpdateStockMutation()
+  const [isEditing, setIsEditing] = useState(false)
 
   const item = query.data
 
   return (
-    <div className="space-y-6">
-      <p>
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
+      <div className="flex flex-col gap-4 border-b border-border/40 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <Link
           to="/"
-          className="text-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          Back to stock list
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to stock list</span>
         </Link>
-      </p>
+      </div>
 
       <AnimatePresence mode="wait">
         {!isValidId || isNotFound(query.error) ? (
           <motion.div
             key="missing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
           >
             <PageHeading>Item not found</PageHeading>
             <div className="mt-4">
@@ -61,9 +67,9 @@ export default function ItemDetailPage() {
         ) : query.isError ? (
           <motion.div
             key="error"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
           >
             <PageHeading>Item details</PageHeading>
             <div className="mt-4">
@@ -85,73 +91,153 @@ export default function ItemDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="space-y-4"
+            className="space-y-6"
           >
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-40 w-full max-w-md" />
-            <Skeleton className="h-24 w-full max-w-sm" />
+            <div className="flex gap-6">
+              <Skeleton className="h-40 w-40 rounded-xl" />
+              <div className="flex-1 space-y-3">
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            </div>
+            <Skeleton className="h-32 w-full rounded-xl" />
           </motion.div>
         ) : (
           <motion.div
             key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <img
-                src={item.thumbnailUrl}
-                alt=""
-                className="h-32 w-32 rounded-md object-cover"
-              />
-              <div className="min-w-0">
-                <PageHeading>{item.name}</PageHeading>
-                <p className="mt-2 text-sm capitalize text-muted-foreground">
-                  {item.category.replaceAll('-', ' ')} · {item.availability}
-                </p>
-                <p className="mt-3 max-w-2xl text-sm">{item.description}</p>
-                <p className="mt-3 text-sm">
-                  On hand: <strong>{item.quantityOnHand}</strong>
-                </p>
+            <div className="overflow-hidden rounded-xl border border-border bg-card p-6 shadow-sm">
+              <div className="flex flex-col gap-6 md:flex-row">
+                <div className="relative aspect-square h-40 w-40 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                  <img
+                    src={item.thumbnailUrl}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+
+                <div className="flex flex-1 flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <PageHeading>{item.name}</PageHeading>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <Badge variant="secondary" className="capitalize">
+                            {item.category.replaceAll('-', ' ')}
+                          </Badge>
+                          <Badge
+                            variant={
+                              item.availability === 'In Stock'
+                                ? 'default'
+                                : 'outline'
+                            }
+                          >
+                            {item.availability}
+                          </Badge>
+                        </div>
+                      </div> 
+                      {!isEditing && (
+                        <Button
+                          onClick={() => setIsEditing(true)}
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                          Edit Stock
+                        </Button>
+                      )}
+                    </div>
+
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-3">
+                    <Package className="h-5 w-5 text-muted-foreground" />
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">
+                        Quantity on hand:{' '}
+                      </span>
+                      <strong className="text-base font-semibold text-foreground">
+                        {item.quantityOnHand}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <section aria-labelledby="correction-heading">
-              <h2 id="correction-heading" className="text-lg font-semibold">
-                Stock correction
-              </h2>
-              <p className="mb-4 mt-1 text-sm text-muted-foreground">
-                Enter the counted quantity. Saves update the in-session cache
-                immediately; DummyJSON will not persist them on the server.
-              </p>
-              <StockCorrectionForm
-                currentQuantity={item.quantityOnHand}
-                isSaving={updateState.isLoading}
-                onSubmit={async (quantityOnHand) => {
-                  try {
-                    await updateStock({
-                      id: item.id,
-                      quantityOnHand,
-                    }).unwrap()
-                    showToast({
-                      variant: 'success',
-                      title: 'Stock updated',
-                      description: 'The new count is reflected in this session.',
-                    })
-                  } catch (error) {
-                    showToast({
-                      variant: 'error',
-                      title: 'Could not save stock',
-                      description: getRtkErrorMessage(
-                        error,
-                        'The correction was rolled back.'
-                      ),
-                    })
-                  }
-                }}
-              />
-            </section>
+            <AnimatePresence>
+              {isEditing && (
+                <motion.section
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  aria-labelledby="correction-heading"
+                  className="overflow-hidden rounded-xl border border-primary/20 bg-card p-6 shadow-md"
+                >
+                  <div className="flex items-center justify-between border-b pb-4">
+                    <div>
+                      <h2
+                        id="correction-heading"
+                        className="text-lg font-semibold tracking-tight"
+                      >
+                        Stock Correction
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        Enter the updated count. Changes update the in-session
+                        cache immediately.
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsEditing(false)}
+                      aria-label="Close edit mode"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="mt-4">
+                    <StockCorrectionForm
+                      currentQuantity={item.quantityOnHand}
+                      isSaving={updateState.isLoading}
+                      onSubmit={async (quantityOnHand) => {
+                        try {
+                          await updateStock({
+                            id: item.id,
+                            quantityOnHand,
+                          }).unwrap()
+                          showToast({
+                            variant: 'success',
+                            title: 'Stock updated',
+                            description:
+                              'The new count is reflected in this session.',
+                          })
+                          setIsEditing(false) // Exit edit mode on success
+                        } catch (error) {
+                          showToast({
+                            variant: 'error',
+                            title: 'Could not save stock',
+                            description: getRtkErrorMessage(
+                              error,
+                              'The correction was rolled back.'
+                            ),
+                          })
+                        }
+                      }}
+                    />
+                  </div>
+                </motion.section>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

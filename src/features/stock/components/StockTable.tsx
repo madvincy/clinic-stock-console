@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Pencil } from 'lucide-react'
 import type { StockItem } from '@/types/api'
 import {
   Table,
@@ -11,9 +12,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { PAGE_SIZE } from '@/lib/apiClient'
 import { cn } from '@/lib/utils'
 import type { SortOrder } from '@/features/stock/useStockListQueryParams'
+import { StockEditDialog } from '@/features/stock/components/StockEditDialog'
 
 interface StockTableProps {
   items: StockItem[]
@@ -27,6 +30,7 @@ interface Column {
   key: string
   label: string
   sortField?: string
+  headerClassName?: string
 }
 
 const COLUMNS: Column[] = [
@@ -34,6 +38,7 @@ const COLUMNS: Column[] = [
   { key: 'category', label: 'Category' },
   { key: 'stock', label: 'Stock', sortField: 'stock' },
   { key: 'price', label: 'Price', sortField: 'price' },
+  { key: 'actions', label: 'Actions', headerClassName: 'text-right' },
 ]
 
 function formatPrice(value: number): string {
@@ -55,7 +60,7 @@ function SortableColumnHead({
   onSortChange: (sortBy: string, order: SortOrder) => void
 }) {
   if (!column.sortField) {
-    return <TableHead>{column.label}</TableHead>
+    return <TableHead className={column.headerClassName}>{column.label}</TableHead>
   }
 
   const isActive = sortBy === column.sortField
@@ -114,11 +119,22 @@ function StockTableSkeletonRow() {
       <TableCell>
         <Skeleton className="h-4 w-16" />
       </TableCell>
+      <TableCell className="text-right">
+        <Skeleton className="ml-auto h-8 w-8" />
+      </TableCell>
     </TableRow>
   )
 }
 
-function StockTableRow({ item }: { item: StockItem }) {
+function StockTableRow({
+  item,
+  onEdit,
+}: {
+  item: StockItem
+  onEdit: (item: StockItem) => void
+}) {
+  const navigate = useNavigate()
+
   return (
     <motion.tr
       layout
@@ -126,11 +142,13 @@ function StockTableRow({ item }: { item: StockItem }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="border-b transition-colors hover:bg-muted/50"
+      onClick={() => navigate(`/items/${item.id}`)}
+      className="cursor-pointer border-b transition-colors hover:bg-muted/50"
     >
       <TableCell>
         <Link
           to={`/items/${item.id}`}
+          onClick={(event) => event.stopPropagation()}
           className="flex min-w-0 items-center gap-3 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <img
@@ -148,6 +166,21 @@ function StockTableRow({ item }: { item: StockItem }) {
       <TableCell className="whitespace-nowrap">
         {formatPrice(item.unitPrice)}
       </TableCell>
+      <TableCell className="text-right">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={(event) => {
+            event.stopPropagation()
+            onEdit(item)
+          }}
+          aria-label={`Edit stock for ${item.name}`}
+        >
+          <Pencil className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </TableCell>
     </motion.tr>
   )
 }
@@ -159,6 +192,14 @@ export function StockTable({
   order,
   onSortChange,
 }: StockTableProps) {
+  const [editingItem, setEditingItem] = useState<StockItem | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+
+  function handleEdit(item: StockItem) {
+    setEditingItem(item)
+    setIsEditDialogOpen(true)
+  }
+
   return (
     <div className="overflow-x-auto rounded-md border" aria-busy={isLoading}>
       <Table>
@@ -183,12 +224,18 @@ export function StockTable({
           ) : (
             <AnimatePresence initial={false}>
               {items.map((item) => (
-                <StockTableRow key={item.id} item={item} />
+                <StockTableRow key={item.id} item={item} onEdit={handleEdit} />
               ))}
             </AnimatePresence>
           )}
         </TableBody>
       </Table>
+
+      <StockEditDialog
+        item={editingItem}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
     </div>
   )
 }
