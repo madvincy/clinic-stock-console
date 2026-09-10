@@ -1,0 +1,31 @@
+import type { DummyJSONProduct } from '@/types/api'
+
+export const sampleDummyJSONProduct: DummyJSONProduct = {
+  id: 1,
+  title: 'Essence Mascara Lash Princess',
+  description: 'Volumizing mascara',
+  category: 'beauty',
+  price: 9.99,
+  discountPercentage: 7.17,
+  rating: 4.94,
+  stock: 5,
+  tags: ['beauty', 'mascara'],
+  brand: 'Essence',
+  sku: 'RCH45Q1A',
+  weight: 2,
+  dimensions: { width: 23.17, height: 14.43, depth: 28.01 },
+  warrantyInformation: '1 month warranty',
+  shippingInformation: 'Ships in 1 month',
+  availabilityStatus: 'Low Stock',
+  reviews: [],
+  returnPolicy: '30 days return policy',
+  minimumOrderQuantity: 24,
+  meta: {
+    createdAt: '2024-05-23T08:56:21.618Z',
+    updatedAt: '2024-05-23T08:56:21.618Z',
+    barcode: '9164035109868',
+    qrCode: 'https://example.com/qr',
+  },
+  thumbnail: 'https://cdn.dummyjson.com/product-images/beauty/1/thumbnail.webp',
+  images: ['https://cdn.dummyjson.com/product-images/beauty/1/1.webp'],
+}
