@@ -70,6 +70,7 @@ export function writeStockListQueryParams(
     order: SortOrder
     page: number
     limit: number
+    forceError: boolean
   }>,
   options?: { resetPage?: boolean }
 ): URLSearchParams {
@@ -96,6 +97,11 @@ export function writeStockListQueryParams(
   if (patch.limit !== undefined) {
     if (patch.limit === DEFAULTS.limit) next.delete('limit')
     else next.set('limit', String(patch.limit))
+  }
+
+  if (patch.forceError !== undefined) {
+    if (patch.forceError === DEFAULTS.forceError) next.delete('forceError')
+    else next.set('forceError', '1')
   }
 
   const resetPage = options?.resetPage === true
@@ -126,6 +132,7 @@ export function useStockListQueryParams() {
         order: SortOrder
         page: number
         limit: number
+        forceError: boolean
       }>,
       resetPage = false
     ) => {
@@ -157,6 +164,18 @@ export function useStockListQueryParams() {
     (limit: number) => update({ limit }, true),
     [update]
   )
+  const setForceError = useCallback(
+    (forceError: boolean) => update({ forceError }, false),
+    [update]
+  )
 
-  return { ...params, setSearch, setCategory, setSort, setPage, setLimit }
+  return {
+    ...params,
+    setSearch,
+    setCategory,
+    setSort,
+    setPage,
+    setLimit,
+    setForceError,
+  }
 }

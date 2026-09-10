@@ -14,6 +14,8 @@ import {
   useSearchProductsQuery,
 } from '@/features/stock/stockApi'
 import { getRtkErrorMessage } from '@/lib/apiClient'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 export default function StockListPage() {
   const {
@@ -30,6 +32,7 @@ export default function StockListPage() {
     setSort,
     setPage,
     setLimit,
+    setForceError,
   } = useStockListQueryParams()
 
   const categoriesQuery = useGetCategoriesQuery()
@@ -77,14 +80,30 @@ export default function StockListPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <PageHeading>Stock list</PageHeading>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Search, filter, and correct clinic inventory. Add{' '}
-          <code>?forceError=1</code> to exercise the error UI against{' '}
-          <code>/http/500</code>.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <PageHeading>Stock list</PageHeading>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Search, filter, and correct clinic inventory.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-md border px-3 py-2">
+          <Switch
+            id="force-error"
+            checked={forceError}
+            onCheckedChange={setForceError}
+            aria-describedby="force-error-hint"
+          />
+          <Label htmlFor="force-error" className="cursor-pointer text-sm">
+            Force 500 error
+          </Label>
+        </div>
       </div>
+      <p id="force-error-hint" className="sr-only">
+        When enabled, stock requests are routed through /http/500 to test the
+        error state.
+      </p>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <SearchBox value={search} onChange={setSearch} />
