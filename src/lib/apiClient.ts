@@ -3,6 +3,7 @@
  * Default origin is https://dummyjson.com, overridable with VITE_API_BASE_URL.
  * `delay` (or VITE_API_DELAY) is forwarded as `?delay=` for slow-response testing.
  */
+import { isSlowNetworkSimulationEnabled, SIMULATED_DELAY_MS } from '@/lib/apiDelay'
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://dummyjson.com'
@@ -12,6 +13,9 @@ export const LOGIN_EXPIRES_IN_MINS = 1
 export const PAGE_SIZE = 10
 
 export function getDefaultDelayMs(): number | undefined {
+  if (isSlowNetworkSimulationEnabled()) {
+    return SIMULATED_DELAY_MS // returns 2000 ms
+  }
   const raw = import.meta.env.VITE_API_DELAY
   if (!raw) return undefined
   const parsed = Number(raw)
