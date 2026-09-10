@@ -19,7 +19,6 @@ interface PaginationControlsProps {
   onLimitChange: (limit: number) => void
 }
 
-
 function getPageNumbers(page: number, pageCount: number): (number | 'ellipsis')[] {
   if (pageCount <= 1) return [1]
 
@@ -59,7 +58,7 @@ export function PaginationControls({
 
   return (
     <nav
-      className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between"
       aria-label="Stock list pagination"
     >
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -67,7 +66,7 @@ export function PaginationControls({
           {rangeStart}–{rangeEnd} of {total}
         </span>
         <label htmlFor="page-size" className="ml-2 flex items-center gap-2">
-          <span className="hidden sm:inline">Items Per Page</span>
+          <span className="hidden sm:inline">Per page</span>
           <Select
             value={String(limit)}
             onValueChange={(next) => onLimitChange(Number(next))}

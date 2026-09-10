@@ -31,13 +31,25 @@ interface Column {
   label: string
   sortField?: string
   headerClassName?: string
+  cellClassName?: string
 }
 
 const COLUMNS: Column[] = [
   { key: 'item', label: 'Item', sortField: 'title' },
-  { key: 'category', label: 'Category' },
+  {
+    key: 'category',
+    label: 'Category',
+    headerClassName: 'hidden sm:table-cell',
+    cellClassName: 'hidden sm:table-cell',
+  },
   { key: 'stock', label: 'Stock', sortField: 'stock' },
-  { key: 'price', label: 'Price', sortField: 'price' },
+  {
+    key: 'price',
+    label: 'Price',
+    sortField: 'price',
+    headerClassName: 'hidden sm:table-cell',
+    cellClassName: 'hidden sm:table-cell',
+  },
   { key: 'actions', label: 'Actions', headerClassName: 'text-right' },
 ]
 
@@ -79,7 +91,7 @@ function SortableColumnHead({
   }
 
   return (
-    <TableHead aria-sort={ariaSort}>
+    <TableHead aria-sort={ariaSort} className={column.headerClassName}>
       <button
         type="button"
         onClick={handleClick}
@@ -110,13 +122,13 @@ function StockTableSkeletonRow() {
           <Skeleton className="h-4 w-40" />
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden sm:table-cell">
         <Skeleton className="h-4 w-24" />
       </TableCell>
       <TableCell>
         <Skeleton className="h-4 w-12" />
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden sm:table-cell">
         <Skeleton className="h-4 w-16" />
       </TableCell>
       <TableCell className="text-right">
@@ -156,14 +168,21 @@ function StockTableRow({
             alt=""
             className="h-10 w-10 shrink-0 rounded object-cover"
           />
-          <span className="font-medium">{item.name}</span>
+          <span className="min-w-0">
+            <span className="block font-medium">{item.name}</span>
+            <span className="block text-xs text-muted-foreground sm:hidden">
+              <span className="capitalize">{item.category.replaceAll('-', ' ')}</span>
+              {' · '}
+              {formatPrice(item.unitPrice)}
+            </span>
+          </span>
         </Link>
       </TableCell>
-      <TableCell className="whitespace-nowrap capitalize">
+      <TableCell className="hidden whitespace-nowrap capitalize sm:table-cell">
         {item.category.replaceAll('-', ' ')}
       </TableCell>
       <TableCell>{item.quantityOnHand}</TableCell>
-      <TableCell className="whitespace-nowrap">
+      <TableCell className="hidden whitespace-nowrap sm:table-cell">
         {formatPrice(item.unitPrice)}
       </TableCell>
       <TableCell className="text-right">
