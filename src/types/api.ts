@@ -23,10 +23,24 @@ export interface DummyJSONCategory {
   url: string
 }
 
+export interface DummyJSONAddress {
+  address?: string
+  city?: string
+  state?: string
+  stateCode?: string
+  postalCode?: string
+  coordinates?: {
+    lat?: number
+    lng?: number
+  }
+  country?: string
+}
+
 export interface DummyJSONCompany {
   department?: string
   name?: string
   title?: string
+  address?: DummyJSONAddress
 }
 
 // ── Raw API DTOs ────────────────────────────────────────────────────────────
@@ -44,14 +58,23 @@ export interface DummyJSONProduct {
   brand?: string
   sku: string
   weight: number
-  dimensions: { width: number; height: number; depth: number }
+  dimensions: {
+    width: number
+    height: number
+    depth: number
+  }
   warrantyInformation: string
   shippingInformation: string
   availabilityStatus: string
   reviews: DummyJSONReview[]
   returnPolicy: string
   minimumOrderQuantity: number
-  meta: { createdAt: string; updatedAt: string; barcode: string; qrCode: string }
+  meta: {
+    createdAt: string
+    updatedAt: string
+    barcode: string
+    qrCode: string
+  }
   thumbnail: string
   images: string[]
 }
@@ -61,8 +84,13 @@ export interface DummyJSONRefreshResponse {
   refreshToken: string
 }
 
-/** Derived from RefreshResponse to guarantee auth tokens match across interfaces. */
-export interface DummyJSONAuthResponse extends Partial<DummyJSONRefreshResponse> {
+/**
+ * User returned by DummyJSON authentication endpoints.
+ *
+ * Login returns the basic user information plus tokens.
+ * /auth/me returns the user information without the tokens.
+ */
+export interface DummyJSONAuthResponse {
   id: number
   username: string
   email: string
@@ -70,22 +98,65 @@ export interface DummyJSONAuthResponse extends Partial<DummyJSONRefreshResponse>
   lastName: string
   gender: string
   image: string
+
   phone?: string
+
+  age?: number
+  birthDate?: string
+  bloodGroup?: string
+  height?: number
+  weight?: number
+  eyeColor?: string
+  hair?: {
+    color?: string
+    type?: string
+  }
+
+  address?: DummyJSONAddress
+
+  university?: string
+
   company?: DummyJSONCompany
+
   role?: string
+
+  ssn?: string
+  ein?: string
+  userAgent?: string
+  crypto?: {
+    coin?: string
+    wallet?: string
+    network?: string
+  }
+
+  accessToken?: string
+  refreshToken?: string
 }
 
-export type DummyJSONLoginRequest = Required<Pick<DummyJSONAuthResponse, 'username'>> & {
+/**
+ * Login request accepted by DummyJSON.
+ */
+export type DummyJSONLoginRequest = {
+  username: string
   password: string
   expiresInMins?: number
 }
 
-export type DummyJSONProductsResponse = PaginatedResponse<DummyJSONProduct, 'products'>
+/**
+ * Application user.
+ *
+ * Authentication tokens are intentionally excluded because
+ * they belong to AuthState rather than the user object.
+ */
+export type AuthUser = Omit<
+  DummyJSONAuthResponse,
+  'accessToken' | 'refreshToken'
+>
 
-// ── Application Domain Models ────────────────────────────────────────────────
+export type DummyJSONProductsResponse =
+  PaginatedResponse<DummyJSONProduct, 'products'>
 
-/** Domain user omits internal API tokens from auth response. */
-export type AuthUser = Omit<DummyJSONAuthResponse, 'accessToken' | 'refreshToken'>
+// ── Application Domain Models ───────────────────────────────────────────────
 
 export interface StockItem {
   id: number
@@ -102,9 +173,11 @@ export interface StockItem {
 
 export type StockListPage = PaginatedResponse<StockItem, 'items'>
 
-// ── Mapping Functions ────────────────────────────────────────────────────────
+// ── Mapping Functions ───────────────────────────────────────────────────────
 
-export function mapDummyJSONToStockItem(product: DummyJSONProduct): StockItem {
+export function mapDummyJSONToStockItem(
+  product: DummyJSONProduct
+): StockItem {
   const {
     id,
     title: name,
@@ -132,13 +205,21 @@ export function mapDummyJSONToStockItem(product: DummyJSONProduct): StockItem {
   }
 }
 
-export function mapAuthResponseToUser(response: DummyJSONAuthResponse): AuthUser {
-  const { accessToken, refreshToken, company, ...user } = response
+/**
+ * Converts a DummyJSON auth response into the application user model.
+ *
+ * IMPORTANT:
+ * We only remove authentication tokens here.
+ * Everything else returned by DummyJSON is preserved.
+ */
+export function mapAuthResponseToUser(
+  response: DummyJSONAuthResponse
+): AuthUser {
+  const {
+    accessToken: _accessToken,
+    refreshToken: _refreshToken,
+    ...user
+  } = response
 
-  return {
-    ...user,
-    company: company
-      ? { name: company.name, department: company.department, title: company.title }
-      : undefined,
-  }
+  return user
 }
