@@ -122,7 +122,7 @@ export default function StockListPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <StockTable items={[]} isLoading />
+            <StockTable items={[]} isLoading sortBy={sortBy} order={order} onSortChange={setSort} />
           </motion.div>
         ) : items.length === 0 ? (
           <motion.div
@@ -141,7 +141,7 @@ export default function StockListPage() {
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            <StockTable items={items} isLoading={false} />
+            <StockTable items={items} isLoading={false} sortBy={sortBy} order={order} onSortChange={setSort} />
             <PaginationControls
               page={page}
               total={total}
