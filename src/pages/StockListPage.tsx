@@ -29,6 +29,7 @@ export default function StockListPage() {
     setCategory,
     setSort,
     setPage,
+    setLimit,
   } = useStockListQueryParams()
 
   const categoriesQuery = useGetCategoriesQuery()
@@ -147,6 +148,7 @@ export default function StockListPage() {
               total={total}
               limit={limit}
               onPageChange={setPage}
+              onLimitChange={setLimit}
             />
           </motion.div>
         )}

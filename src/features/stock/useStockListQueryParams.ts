@@ -15,6 +15,8 @@ export interface StockListQueryParams {
   forceError: boolean
 }
 
+const VALID_LIMITS = [10, 25, 50, 100] as const
+
 const DEFAULTS: Omit<StockListQueryParams, 'skip'> = {
   search: '',
   category: '',
@@ -35,11 +37,18 @@ function parseOrder(value: string | null): SortOrder {
   return value === 'desc' ? 'desc' : 'asc'
 }
 
+function parseLimit(value: string | null): number {
+  const parsed = Number(value)
+  return (VALID_LIMITS as readonly number[]).includes(parsed)
+    ? parsed
+    : DEFAULTS.limit
+}
+
 export function readStockListQueryParams(
   searchParams: URLSearchParams
 ): StockListQueryParams {
   const page = parsePage(searchParams.get('page'))
-  const limit = DEFAULTS.limit
+  const limit = parseLimit(searchParams.get('limit'))
   return {
     search: searchParams.get('search') ?? DEFAULTS.search,
     category: searchParams.get('category') ?? DEFAULTS.category,
@@ -60,6 +69,7 @@ export function writeStockListQueryParams(
     sortBy: string
     order: SortOrder
     page: number
+    limit: number
   }>,
   options?: { resetPage?: boolean }
 ): URLSearchParams {
@@ -81,6 +91,11 @@ export function writeStockListQueryParams(
   if (patch.order !== undefined) {
     if (patch.order === DEFAULTS.order) next.delete('order')
     else next.set('order', patch.order)
+  }
+
+  if (patch.limit !== undefined) {
+    if (patch.limit === DEFAULTS.limit) next.delete('limit')
+    else next.set('limit', String(patch.limit))
   }
 
   const resetPage = options?.resetPage === true
@@ -110,6 +125,7 @@ export function useStockListQueryParams() {
         sortBy: string
         order: SortOrder
         page: number
+        limit: number
       }>,
       resetPage = false
     ) => {
@@ -137,6 +153,10 @@ export function useStockListQueryParams() {
     (page: number) => update({ page }, false),
     [update]
   )
+  const setLimit = useCallback(
+    (limit: number) => update({ limit }, true),
+    [update]
+  )
 
-  return { ...params, setSearch, setCategory, setSort, setPage }
+  return { ...params, setSearch, setCategory, setSort, setPage, setLimit }
 }
