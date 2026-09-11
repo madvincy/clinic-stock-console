@@ -52,24 +52,33 @@ describe('updateStock optimistic update', () => {
   it('reverts the cache and surfaces an error when the mutation fails', async () => {
     const user = userEvent.setup()
 
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const requestUrl = typeof input === 'string' ? input : input instanceof Request ? input.url : String(input)
-      const method = (init?.method || (input instanceof Request ? input.method : 'GET')).toUpperCase()
+    const fetchMock = vi.fn(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const requestUrl =
+          typeof input === 'string'
+            ? input
+            : input instanceof Request
+              ? input.url
+              : String(input)
+        const method = (
+          init?.method || (input instanceof Request ? input.method : 'GET')
+        ).toUpperCase()
 
-      // Parse path to safely ignore withDelayParams query parameters
-      const urlPath = new URL(requestUrl, 'https://dummyjson.com').pathname
+        // Parse path to safely ignore withDelayParams query parameters
+        const urlPath = new URL(requestUrl, 'https://dummyjson.com').pathname
 
-      if (urlPath === '/products/1' || urlPath.endsWith('/products/1')) {
-        if (method === 'GET') {
-          return jsonResponse(sampleDummyJSONProduct, 200)
+        if (urlPath === '/products/1' || urlPath.endsWith('/products/1')) {
+          if (method === 'GET') {
+            return jsonResponse(sampleDummyJSONProduct, 200)
+          }
+          if (method === 'PUT' || method === 'PATCH') {
+            return jsonResponse({ message: 'Update failed' }, 500)
+          }
         }
-        if (method === 'PUT' || method === 'PATCH') {
-          return jsonResponse({ message: 'Update failed' }, 500)
-        }
+
+        return jsonResponse({ message: 'unhandled' }, 500)
       }
-
-      return jsonResponse({ message: 'unhandled' }, 500)
-    })
+    )
 
     vi.stubGlobal('fetch', fetchMock)
 
@@ -94,13 +103,17 @@ describe('updateStock optimistic update', () => {
     await user.clear(input)
     await user.type(input, '40')
 
-    const submitButton = screen.getByRole('button', { name: /save correction/i })
+    const submitButton = screen.getByRole('button', {
+      name: /save correction/i,
+    })
     await user.click(submitButton)
 
     // 3. Verify optimistic patch occurred and was successfully reverted back to original (5) on 500 error
     await waitFor(() => {
       const cached = stockApi.endpoints.getProduct.select(1)(store.getState())
-      expect(cached.data?.quantityOnHand).toBe(sampleDummyJSONProduct.stock ?? 5)
+      expect(cached.data?.quantityOnHand).toBe(
+        sampleDummyJSONProduct.stock ?? 5
+      )
     })
 
     // 4. Verify toast notification in memory store

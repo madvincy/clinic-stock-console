@@ -38,7 +38,10 @@ function toListPage(response: DummyJSONProductsResponse): StockListPage {
   }
 }
 
-function listUrl(args: ProductListArgs): { url: string; params: Record<string, string | number | boolean> } {
+function listUrl(args: ProductListArgs): {
+  url: string
+  params: Record<string, string | number | boolean>
+} {
   if (args.forceError) {
     return { url: '/http/500', params: withDelayParams() }
   }
@@ -181,13 +184,9 @@ export const stockApi = createApi({
         for (const args of searchArgs) {
           patches.push(
             dispatch(
-              stockApi.util.updateQueryData(
-                'searchProducts',
-                args,
-                (draft) => {
-                  patchQuantity(draft, id, quantityOnHand)
-                }
-              )
+              stockApi.util.updateQueryData('searchProducts', args, (draft) => {
+                patchQuantity(draft, id, quantityOnHand)
+              })
             )
           )
         }

@@ -53,9 +53,7 @@ export function toggleSlowNetworkSimulation(): void {
   setSlowNetworkSimulation(!enabled)
 }
 
-export function subscribeSlowNetworkSimulation(
-  listener: Listener
-): () => void {
+export function subscribeSlowNetworkSimulation(listener: Listener): () => void {
   listeners.add(listener)
 
   return () => {

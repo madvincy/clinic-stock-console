@@ -9,10 +9,7 @@ import {
   getRtkErrorMessage,
   safeRedirectTo,
 } from '@/lib/apiClient'
-import {
-  loginSchema,
-  type LoginFormValues,
-} from '@/features/auth/loginSchema'
+import { loginSchema, type LoginFormValues } from '@/features/auth/loginSchema'
 import { PageHeading } from '@/components/PageHeading'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

@@ -1,9 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
-import type {
-  AuthUser,
-  DummyJSONAuthResponse,
-} from '@/types/api'
+import type { AuthUser, DummyJSONAuthResponse } from '@/types/api'
 
 import { mapAuthResponseToUser } from '@/types/api'
 
@@ -100,9 +97,7 @@ const authSlice = createSlice({
       state.accessToken = action.payload.accessToken
       state.refreshToken = action.payload.refreshToken
 
-      state.expiresAt =
-        Date.now() +
-        action.payload.expiresInMins * 60 * 1000
+      state.expiresAt = Date.now() + action.payload.expiresInMins * 60 * 1000
 
       if (action.payload.user !== undefined) {
         state.user = action.payload.user
@@ -117,10 +112,7 @@ const authSlice = createSlice({
      *
      * Tokens are deliberately left untouched.
      */
-    userUpdated: (
-      state,
-      action: PayloadAction<AuthUser>
-    ) => {
+    userUpdated: (state, action: PayloadAction<AuthUser>) => {
       state.user = action.payload
 
       persistAuth(state)
@@ -137,11 +129,7 @@ const authSlice = createSlice({
   },
 })
 
-export const {
-  sessionEstablished,
-  userUpdated,
-  logout,
-} = authSlice.actions
+export const { sessionEstablished, userUpdated, logout } = authSlice.actions
 
 export const authReducer = authSlice.reducer
 
@@ -157,9 +145,7 @@ export function applyLoginResponse(
   expiresInMins = LOGIN_EXPIRES_IN_MINS
 ) {
   if (!response.accessToken || !response.refreshToken) {
-    throw new Error(
-      'Login response did not contain authentication tokens.'
-    )
+    throw new Error('Login response did not contain authentication tokens.')
   }
 
   return sessionEstablished({
@@ -170,31 +156,18 @@ export function applyLoginResponse(
   })
 }
 
-export const selectAuth = (
-  state: { auth: AuthState }
-) => state.auth
+export const selectAuth = (state: { auth: AuthState }) => state.auth
 
-export const selectHasSession = (
-  state: { auth: AuthState }
-) =>
-  Boolean(
-    state.auth.accessToken ||
-    state.auth.refreshToken
-  )
+export const selectHasSession = (state: { auth: AuthState }) =>
+  Boolean(state.auth.accessToken || state.auth.refreshToken)
 
-export const selectAccessToken = (
-  state: { auth: AuthState }
-) => state.auth.accessToken
+export const selectAccessToken = (state: { auth: AuthState }) =>
+  state.auth.accessToken
 
-export const selectRefreshToken = (
-  state: { auth: AuthState }
-) => state.auth.refreshToken
+export const selectRefreshToken = (state: { auth: AuthState }) =>
+  state.auth.refreshToken
 
-export const selectUser = (
-  state: { auth: AuthState }
-) => state.auth.user
+export const selectUser = (state: { auth: AuthState }) => state.auth.user
 
-export const selectIsAccessTokenFresh = (
-  state: { auth: AuthState }
-) =>
+export const selectIsAccessTokenFresh = (state: { auth: AuthState }) =>
   isAccessTokenFresh(state.auth.expiresAt)

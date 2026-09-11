@@ -5,7 +5,15 @@ interface NetworkInformation extends EventTarget {
   rtt?: number
   downlink?: number
   saveData?: boolean
-  type?: 'bluetooth' | 'cellular' | 'ethernet' | 'none' | 'wifi' | 'wimax' | 'other' | 'unknown'
+  type?:
+    | 'bluetooth'
+    | 'cellular'
+    | 'ethernet'
+    | 'none'
+    | 'wifi'
+    | 'wimax'
+    | 'other'
+    | 'unknown'
 }
 
 interface NavigatorWithConnection extends Navigator {
@@ -47,7 +55,8 @@ export function useNetworkStatus(): NetworkStatus {
     window.addEventListener('offline', updateStatus)
 
     const nav = navigator as NavigatorWithConnection
-    const connection = nav.connection || nav.mozConnection || nav.webkitConnection
+    const connection =
+      nav.connection || nav.mozConnection || nav.webkitConnection
 
     if (connection) {
       connection.addEventListener('change', updateStatus)

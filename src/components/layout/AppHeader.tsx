@@ -4,7 +4,16 @@ import { ConnectivityIndicator } from '@/components/layout/ConnectivityIndicator
 import { UserMenu } from '@/components/layout/UserMenu'
 
 interface AppHeaderProps {
-  user: { firstName?: string; lastName?: string; username?: string; email?: string; image?: string } | null | undefined
+  user:
+    | {
+        firstName?: string
+        lastName?: string
+        username?: string
+        email?: string
+        image?: string
+      }
+    | null
+    | undefined
   isOnline: boolean
   networkDetails: ReturnType<typeof useNetworkStatus>
   isDelaySimulated: boolean

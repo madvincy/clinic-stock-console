@@ -140,7 +140,7 @@ export default function ItemDetailPage() {
                             {item.availability}
                           </Badge>
                         </div>
-                      </div> 
+                      </div>
                       {!isEditing && (
                         <Button
                           onClick={() => setIsEditing(true)}

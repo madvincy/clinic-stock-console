@@ -151,8 +151,10 @@ export type AuthUser = Omit<
   'accessToken' | 'refreshToken'
 >
 
-export type DummyJSONProductsResponse =
-  PaginatedResponse<DummyJSONProduct, 'products'>
+export type DummyJSONProductsResponse = PaginatedResponse<
+  DummyJSONProduct,
+  'products'
+>
 
 // ── Application Domain Models ───────────────────────────────────────────────
 
@@ -173,9 +175,7 @@ export type StockListPage = PaginatedResponse<StockItem, 'items'>
 
 // ── Mapping Functions ───────────────────────────────────────────────────────
 
-export function mapDummyJSONToStockItem(
-  product: DummyJSONProduct
-): StockItem {
+export function mapDummyJSONToStockItem(product: DummyJSONProduct): StockItem {
   const {
     id,
     title: name,

@@ -23,10 +23,7 @@ export const authApi = createApi({
      * DummyJSON returns authentication tokens and basic
      * user information.
      */
-    login: builder.mutation<
-      DummyJSONAuthResponse,
-      DummyJSONLoginRequest
-    >({
+    login: builder.mutation<DummyJSONAuthResponse, DummyJSONLoginRequest>({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
@@ -52,15 +49,12 @@ export const authApi = createApi({
        * userUpdated() only changes state.user, so the access
        * and refresh tokens remain untouched.
        */
-      async onQueryStarted(
-        _arg,
-        { dispatch, queryFulfilled }
-      ) {
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
           dispatch(userUpdated(data))
-        } catch(err: unknown) {
+        } catch (err: unknown) {
           if (err?.error?.status === 401) {
             dispatch(logout())
           }
@@ -87,8 +81,4 @@ export const authApi = createApi({
   }),
 })
 
-export const {
-  useLoginMutation,
-  useGetMeQuery,
-  useRefreshMutation,
-} = authApi
+export const { useLoginMutation, useGetMeQuery, useRefreshMutation } = authApi

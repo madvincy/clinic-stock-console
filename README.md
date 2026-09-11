@@ -12,18 +12,18 @@ npm install
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start the development server (Vite) |
-| `npm run build` | Build the application for production |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | Run ESLint to check code quality |
-| `npm run lint:fix` | Fix ESLint issues automatically |
-| `npm run format` | Format code with Prettier |
+| Script                 | Description                          |
+| ---------------------- | ------------------------------------ |
+| `npm run dev`          | Start the development server (Vite)  |
+| `npm run build`        | Build the application for production |
+| `npm run preview`      | Preview the production build locally |
+| `npm run lint`         | Run ESLint to check code quality     |
+| `npm run lint:fix`     | Fix ESLint issues automatically      |
+| `npm run format`       | Format code with Prettier            |
 | `npm run format:check` | Check if code is formatted correctly |
-| `npm run typecheck` | Run TypeScript type checking |
-| `npm run test` | Run tests with Vitest |
-| `npm run test:ui` | Run tests with Vitest UI |
+| `npm run typecheck`    | Run TypeScript type checking         |
+| `npm run test`         | Run tests with Vitest                |
+| `npm run test:ui`      | Run tests with Vitest UI             |
 
 ### Technology Stack
 
@@ -75,6 +75,7 @@ This project uses Conventional Commits enforced via commitlint. Commit messages 
 **Valid types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`, `revert`
 
 Example:
+
 ```
 feat(auth): add login page
 
@@ -102,12 +103,12 @@ The stock list screen specifically divides into: a toolbar row (search + categor
 
 ### 2. Where state lives, and why
 
-| State | Lives in | Why |
-|---|---|---|
-| Product list, product detail, categories, current user | RTK Query cache (`stockApi`, `authApi`) | Server data — has its own lifecycle (loading/error/staleness) that RTK Query already models correctly. Mirroring it into a Redux slice would create a second source of truth that can drift from the server. |
-| Search, category, sort field/order, page, page size, force-error toggle | URL (`useSearchParams`, via `useStockListQueryParams`) | This is the actual requirement driver: reloading the browser or opening a copied link must restore the exact same view. Only the URL survives a reload and a copy-paste to another machine — Redux or component state do not. `skip` is derived (`(page - 1) * limit`), never stored separately, so it can't drift from `page`/`limit`. |
-| Access token, refresh token, expiry, current user | Redux (`authSlice`) | Session state needs to be read from outside React components (the RTK Query `baseQuery` reauth logic in `baseQueryWithReauth` reads it via `getState()`), which rules out component state. It's also genuinely global or app-wide, unlike page-scoped filters. |
-| Dialog open/closed, which item is being edited, real-time network status, slow-network simulation toggle | Local component state / small external stores (`useState` in `StockTable`; `useSyncExternalStore` for `useNetworkStatus` and `useSlowNetworkSimulation`) | Ephemeral UI state that doesn't need to survive a reload or be shareable. The dialog's `item` is deliberately *not* cleared on close, only `open` toggles, so Radix's exit animation has content to animate against. |
+| State                                                                                                    | Lives in                                                                                                                                                 | Why                                                                                                                                                                                                                                                                                                                                     |
+| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Product list, product detail, categories, current user                                                   | RTK Query cache (`stockApi`, `authApi`)                                                                                                                  | Server data — has its own lifecycle (loading/error/staleness) that RTK Query already models correctly. Mirroring it into a Redux slice would create a second source of truth that can drift from the server.                                                                                                                            |
+| Search, category, sort field/order, page, page size, force-error toggle                                  | URL (`useSearchParams`, via `useStockListQueryParams`)                                                                                                   | This is the actual requirement driver: reloading the browser or opening a copied link must restore the exact same view. Only the URL survives a reload and a copy-paste to another machine — Redux or component state do not. `skip` is derived (`(page - 1) * limit`), never stored separately, so it can't drift from `page`/`limit`. |
+| Access token, refresh token, expiry, current user                                                        | Redux (`authSlice`)                                                                                                                                      | Session state needs to be read from outside React components (the RTK Query `baseQuery` reauth logic in `baseQueryWithReauth` reads it via `getState()`), which rules out component state. It's also genuinely global or app-wide, unlike page-scoped filters.                                                                          |
+| Dialog open/closed, which item is being edited, real-time network status, slow-network simulation toggle | Local component state / small external stores (`useState` in `StockTable`; `useSyncExternalStore` for `useNetworkStatus` and `useSlowNetworkSimulation`) | Ephemeral UI state that doesn't need to survive a reload or be shareable. The dialog's `item` is deliberately _not_ cleared on close, only `open` toggles, so Radix's exit animation has content to animate against.                                                                                                                    |
 
 ### 3. Fetch, cache, and invalidation
 
@@ -137,11 +138,11 @@ Typography uses Geist Variable (`@fontsource-variable/geist`) as the primary san
 
 ## Hooks
 
-| Hook | Purpose |
-|---|---|
-| `useStockListQueryParams` | Single source of truth for stock list search/category/sort/page/limit/forceError, synced to the URL |
-| `useNetworkStatus` | Real browser connectivity + Network Information API details (`effectiveType`, `downlink`, `rtt`), with `online`/`offline`/`connection.change` listeners |
-| `useSlowNetworkSimulation` | Toggleable request-delay simulation for manually testing loading states and the search race-condition guard, backed by `sessionStorage` |
+| Hook                       | Purpose                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useStockListQueryParams`  | Single source of truth for stock list search/category/sort/page/limit/forceError, synced to the URL                                                     |
+| `useNetworkStatus`         | Real browser connectivity + Network Information API details (`effectiveType`, `downlink`, `rtt`), with `online`/`offline`/`connection.change` listeners |
+| `useSlowNetworkSimulation` | Toggleable request-delay simulation for manually testing loading states and the search race-condition guard, backed by `sessionStorage`                 |
 
 ---
 

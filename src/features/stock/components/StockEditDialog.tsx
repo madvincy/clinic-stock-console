@@ -29,7 +29,11 @@ function formatPrice(value: number): string {
   }).format(value)
 }
 
-export function StockEditDialog({ item, open, onOpenChange }: StockEditDialogProps) {
+export function StockEditDialog({
+  item,
+  open,
+  onOpenChange,
+}: StockEditDialogProps) {
   const [updateStock, updateState] = useUpdateStockMutation()
 
   if (!item) return null
@@ -40,8 +44,8 @@ export function StockEditDialog({ item, open, onOpenChange }: StockEditDialogPro
         <DialogHeader>
           <DialogTitle>Edit stock</DialogTitle>
           <DialogDescription>
-            Update the counted quantity for this item. Saves apply
-            immediately for this session.
+            Update the counted quantity for this item. Saves apply immediately
+            for this session.
           </DialogDescription>
         </DialogHeader>
 
