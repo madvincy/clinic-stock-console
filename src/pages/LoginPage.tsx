@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Building2 } from 'lucide-react'
 import { useLoginMutation } from '@/features/auth/authApi'
 import { applyLoginResponse } from '@/features/auth/authSlice'
 import { useAppDispatch } from '@/app/hooks'
@@ -10,7 +11,6 @@ import {
   safeRedirectTo,
 } from '@/lib/apiClient'
 import { loginSchema, type LoginFormValues } from '@/features/auth/loginSchema'
-import { PageHeading } from '@/components/PageHeading'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -21,6 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { FloatingIconsBackground } from '@/components/FloatingIconsBackground'
 
 export default function LoginPage() {
   const dispatch = useAppDispatch()
@@ -38,74 +39,94 @@ export default function LoginPage() {
     : null
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-8">
-      <PageHeading>Sign in</PageHeading>
-      <p className="mt-2 text-sm text-muted-foreground">
-        DummyJSON demo account: <code>emilys</code> / <code>emilyspass</code>
-      </p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-8">
+      <FloatingIconsBackground />
 
-      <Form {...form}>
-        <form
-          className="mt-6 space-y-4"
-          onSubmit={form.handleSubmit(async (values) => {
-            reset()
-            try {
-              const response = await login({
-                ...values,
-                expiresInMins: LOGIN_EXPIRES_IN_MINS,
-              }).unwrap()
-              dispatch(applyLoginResponse(response, LOGIN_EXPIRES_IN_MINS))
-              navigate(safeRedirectTo(searchParams.get('redirectTo')), {
-                replace: true,
-              })
-            } catch {
-              // Mutation `error` is rendered inline below.
-            }
-          })}
-          noValidate
-        >
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input autoComplete="username" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    autoComplete="current-password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <div className="relative z-10 mx-auto w-full max-w-md">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <Building2 className="h-6 w-6" />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight">
+            Clinic Stock Console
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Sign in</p>
+        </div>
 
-          {serverError ? (
-            <p className="text-sm font-medium text-destructive" role="alert">
-              {serverError}
-            </p>
-          ) : null}
+        <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <p className="text-sm text-muted-foreground">
+            DummyJSON demo account: <code>emilys</code> / <code>emilyspass</code>
+          </p>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Signing in…' : 'Sign in'}
-          </Button>
-        </form>
-      </Form>
+          <Form {...form}>
+            <form
+              className="mt-6 space-y-4"
+              onSubmit={form.handleSubmit(async (values) => {
+                reset()
+                try {
+                  const response = await login({
+                    ...values,
+                    expiresInMins: LOGIN_EXPIRES_IN_MINS,
+                  }).unwrap()
+                  dispatch(applyLoginResponse(response, LOGIN_EXPIRES_IN_MINS))
+                  navigate(safeRedirectTo(searchParams.get('redirectTo')), {
+                    replace: true,
+                  })
+                } catch {
+                  // Mutation `error` is rendered inline below.
+                }
+              })}
+              noValidate
+            >
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input autoComplete="username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        autoComplete="current-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {serverError ? (
+                <p className="text-sm font-medium text-destructive" role="alert">
+                  {serverError}
+                </p>
+              ) : null}
+
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full text-base"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Signing in…' : 'Sign in'}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </div>
     </div>
   )
 }
