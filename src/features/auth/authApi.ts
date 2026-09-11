@@ -77,7 +77,10 @@ export const authApi = createApi({
     /**
      * Refresh authentication tokens.
      */
-    refresh: builder.mutation<DummyJSONRefreshResponse, { refreshToken: string; expiresInMins?: number }>({
+    refresh: builder.mutation<
+      DummyJSONRefreshResponse,
+      { refreshToken: string; expiresInMins?: number }
+    >({
       query: (data) => ({
         url: '/auth/refresh',
         method: 'POST',

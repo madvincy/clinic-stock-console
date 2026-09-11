@@ -108,7 +108,7 @@ export function useIdleTimer({
         window.removeEventListener(event, handleActivity)
       )
     }
-     
+
     // isWarning, reset, and startTimers are intentionally excluded. Re-running
     // this effect on every identity/state change would tear down and
     // reattach listeners on every timer tick or activity event, defeating

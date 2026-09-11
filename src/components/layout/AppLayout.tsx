@@ -9,7 +9,7 @@ import { NetworkStatusBanner } from '@/components/layout/NetworkStatusBanner'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { AppFooter } from '@/components/layout/AppFooter'
 import { IdleLogoutDialog } from '@/components/IdleLogoutDialog'
-import { RouteMetadata } from '../RouteMetadata';
+import { RouteMetadata } from '../RouteMetadata'
 
 // Warn after 1 minute of inactivity, log out 30s after that if untouched.
 const IDLE_WARNING_AFTER_MS = 10_000

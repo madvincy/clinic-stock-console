@@ -23,7 +23,10 @@ export function IdleLogoutDialog({
 }: IdleLogoutDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onStaySignedIn()}>
-      <DialogContent className="sm:max-w-sm" onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent
+        className="sm:max-w-sm"
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Still there?</DialogTitle>
           <DialogDescription>

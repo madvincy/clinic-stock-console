@@ -41,14 +41,20 @@ export default function ItemDetailPage() {
       return
     }
     document.title = `${item.name} – ${item.category} | Clinic Stock Console`
-    let meta = document.head.querySelector<HTMLMetaElement>('meta[name="description"]')
+    let meta = document.head.querySelector<HTMLMetaElement>(
+      'meta[name="description"]'
+    )
     if (!meta) {
       meta = document.createElement('meta')
       meta.name = 'description'
       document.head.appendChild(meta)
     }
-    meta.content = item.description || `View stock details for ${item.name} in ${item.category}.`
-    return () => { document.title = 'Clinic Stock Console' }
+    meta.content =
+      item.description ||
+      `View stock details for ${item.name} in ${item.category}.`
+    return () => {
+      document.title = 'Clinic Stock Console'
+    }
   }, [item])
 
   return (

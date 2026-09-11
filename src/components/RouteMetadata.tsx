@@ -10,12 +10,10 @@ export function RouteMetadata() {
   const matches = useMatches()
 
   useEffect(() => {
-    const currentMatch = [...matches]
-      .reverse()
-      .find((match) => {
-        const handle = match.handle as RouteHandle | undefined
-        return handle?.title || handle?.description
-      })
+    const currentMatch = [...matches].reverse().find((match) => {
+      const handle = match.handle as RouteHandle | undefined
+      return handle?.title || handle?.description
+    })
 
     const handle = currentMatch?.handle as RouteHandle | undefined
 
@@ -23,8 +21,7 @@ export function RouteMetadata() {
 
     setMeta(
       'description',
-      handle?.description ??
-        'Clinic stock management and inventory console'
+      handle?.description ?? 'Clinic stock management and inventory console'
     )
   }, [matches])
 
@@ -44,4 +41,3 @@ function setMeta(name: string, content: string) {
 
   meta.content = content
 }
-

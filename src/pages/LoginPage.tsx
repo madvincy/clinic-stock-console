@@ -55,7 +55,8 @@ export default function LoginPage() {
 
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <p className="text-sm text-muted-foreground">
-            DummyJSON demo account: <code>emilys</code> / <code>emilyspass</code>
+            DummyJSON demo account: <code>emilys</code> /{' '}
+            <code>emilyspass</code>
           </p>
 
           <Form {...form}>
@@ -110,7 +111,10 @@ export default function LoginPage() {
               />
 
               {serverError ? (
-                <p className="text-sm font-medium text-destructive" role="alert">
+                <p
+                  className="text-sm font-medium text-destructive"
+                  role="alert"
+                >
                   {serverError}
                 </p>
               ) : null}
