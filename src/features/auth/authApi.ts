@@ -11,6 +11,18 @@ import type {
 
 import { userUpdated, logout } from './authSlice'
 
+function isUnauthorizedError(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'error' in err &&
+    typeof err.error === 'object' &&
+    err.error !== null &&
+    'status' in err.error &&
+    err.error.status === 401
+  )
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
 
@@ -23,10 +35,7 @@ export const authApi = createApi({
      * DummyJSON returns authentication tokens and basic
      * user information.
      */
-    login: builder.mutation<
-      DummyJSONAuthResponse,
-      DummyJSONLoginRequest
-    >({
+    login: builder.mutation<DummyJSONAuthResponse, DummyJSONLoginRequest>({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
@@ -52,16 +61,13 @@ export const authApi = createApi({
        * userUpdated() only changes state.user, so the access
        * and refresh tokens remain untouched.
        */
-      async onQueryStarted(
-        _arg,
-        { dispatch, queryFulfilled }
-      ) {
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
           dispatch(userUpdated(data))
-        } catch(err: any) {
-          if (err?.error?.status === 401) {
+        } catch (err: unknown) {
+          if (isUnauthorizedError(err)) {
             dispatch(logout())
           }
         }
@@ -73,10 +79,7 @@ export const authApi = createApi({
      */
     refresh: builder.mutation<
       DummyJSONRefreshResponse,
-      {
-        refreshToken: string
-        expiresInMins?: number
-      }
+      { refreshToken: string; expiresInMins?: number }
     >({
       query: (data) => ({
         url: '/auth/refresh',
@@ -87,8 +90,4 @@ export const authApi = createApi({
   }),
 })
 
-export const {
-  useLoginMutation,
-  useGetMeQuery,
-  useRefreshMutation,
-} = authApi
+export const { useLoginMutation, useGetMeQuery, useRefreshMutation } = authApi

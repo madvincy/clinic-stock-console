@@ -11,7 +11,9 @@ export function AppFooter({ isOnline }: AppFooterProps) {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:px-6">
         <div className="flex items-center gap-2">
           <Shield className="h-4 w-4 text-primary" />
-          <span>Clinic Stock Console System &copy; {new Date().getFullYear()}</span>
+          <span>
+            Clinic Stock Console System &copy; {new Date().getFullYear()}
+          </span>
         </div>
 
         <div className="flex items-center gap-4">

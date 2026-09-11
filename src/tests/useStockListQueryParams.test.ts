@@ -21,9 +21,7 @@ describe('stock list query params', () => {
   })
 
   it('resets page when the category param changes', () => {
-    const current = new URLSearchParams(
-      'category=beauty&page=4&search=mask'
-    )
+    const current = new URLSearchParams('category=beauty&page=4&search=mask')
     const next = writeStockListQueryParams(
       current,
       { category: 'smartphones' },
@@ -54,16 +52,13 @@ describe('stock list query params', () => {
     expect(read.page).toBe(3)
     expect(read.skip).toBe(20)
 
-    const written = writeStockListQueryParams(
-      new URLSearchParams(),
-      {
-        search: read.search,
-        category: read.category,
-        sortBy: read.sortBy,
-        order: read.order,
-        page: read.page,
-      }
-    )
+    const written = writeStockListQueryParams(new URLSearchParams(), {
+      search: read.search,
+      category: read.category,
+      sortBy: read.sortBy,
+      order: read.order,
+      page: read.page,
+    })
 
     expect(written.get('search')).toBe('gauze')
     expect(written.get('category')).toBe('beauty')

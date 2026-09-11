@@ -81,11 +81,7 @@ export class ApiError extends Error {
   status: number
   statusText: string
 
-  constructor(
-    status: number,
-    statusText: string,
-    message?: string
-  ) {
+  constructor(status: number, statusText: string, message?: string) {
     super(message || `API Error: ${status} ${statusText}`)
 
     this.name = 'ApiError'
@@ -98,12 +94,7 @@ export async function apiClient<T = unknown>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const {
-    method = 'GET',
-    headers = {},
-    body,
-    delay,
-  } = options
+  const { method = 'GET', headers = {}, body, delay } = options
 
   const url = new URL(endpoint, API_BASE_URL)
 
@@ -141,12 +132,8 @@ export async function apiClient<T = unknown>(
     throw new ApiError(
       response.status,
       response.statusText,
-      typeof data === 'object' &&
-        data !== null &&
-        'message' in data
-        ? String(
-            (data as Record<string, unknown>).message
-          )
+      typeof data === 'object' && data !== null && 'message' in data
+        ? String((data as Record<string, unknown>).message)
         : undefined
     )
   }
@@ -188,10 +175,7 @@ export function apiPut<T = unknown>(
   })
 }
 
-export function getRtkErrorMessage(
-  error: unknown,
-  fallback: string
-): string {
+export function getRtkErrorMessage(error: unknown, fallback: string): string {
   if (
     typeof error === 'object' &&
     error !== null &&
@@ -200,9 +184,7 @@ export function getRtkErrorMessage(
     error.data !== null &&
     'message' in error.data
   ) {
-    return String(
-      (error.data as { message: unknown }).message
-    )
+    return String((error.data as { message: unknown }).message)
   }
 
   if (
@@ -225,9 +207,7 @@ export function getRtkErrorMessage(
  * - protocol-relative URLs
  * - malformed encoded values that cannot be decoded
  */
-export function safeRedirectTo(
-  value: string | null | undefined
-): string {
+export function safeRedirectTo(value: string | null | undefined): string {
   if (!value) {
     return '/'
   }
@@ -240,10 +220,7 @@ export function safeRedirectTo(
     }
   })()
 
-  if (
-    !decoded.startsWith('/') ||
-    decoded.startsWith('//')
-  ) {
+  if (!decoded.startsWith('/') || decoded.startsWith('//')) {
     return '/'
   }
 

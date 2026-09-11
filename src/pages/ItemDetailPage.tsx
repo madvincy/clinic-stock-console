@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Edit3, Package, X } from 'lucide-react'
@@ -35,6 +35,27 @@ export default function ItemDetailPage() {
   const [isEditing, setIsEditing] = useState(false)
 
   const item = query.data
+
+  useEffect(() => {
+    if (!item) {
+      return
+    }
+    document.title = `${item.name} – ${item.category} | Clinic Stock Console`
+    let meta = document.head.querySelector<HTMLMetaElement>(
+      'meta[name="description"]'
+    )
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'description'
+      document.head.appendChild(meta)
+    }
+    meta.content =
+      item.description ||
+      `View stock details for ${item.name} in ${item.category}.`
+    return () => {
+      document.title = 'Clinic Stock Console'
+    }
+  }, [item])
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-6">
@@ -140,7 +161,7 @@ export default function ItemDetailPage() {
                             {item.availability}
                           </Badge>
                         </div>
-                      </div> 
+                      </div>
                       {!isEditing && (
                         <Button
                           onClick={() => setIsEditing(true)}

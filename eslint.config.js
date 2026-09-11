@@ -46,9 +46,19 @@ export default [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'warn',
 
+      // Disabled in favor of @typescript-eslint/no-unused-vars below, which
+      // correctly tracks TypeScript module-scope `let` reassignment across
+      // closures (the base rule produces false positives on that pattern,
+      // e.g. flagging a `let` that's read only via later reassignment
+      // expressions like `toasts = [...toasts, x]`).
+      'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-types': 'off',
@@ -67,4 +77,3 @@ export default [
     },
   },
 ]
-

@@ -19,7 +19,10 @@ interface PaginationControlsProps {
   onLimitChange: (limit: number) => void
 }
 
-function getPageNumbers(page: number, pageCount: number): (number | 'ellipsis')[] {
+function getPageNumbers(
+  page: number,
+  pageCount: number
+): (number | 'ellipsis')[] {
   if (pageCount <= 1) return [1]
 
   const delta = 1
@@ -71,7 +74,11 @@ export function PaginationControls({
             value={String(limit)}
             onValueChange={(next) => onLimitChange(Number(next))}
           >
-            <SelectTrigger id="page-size" className="h-8 w-[72px]" aria-label="Items per page">
+            <SelectTrigger
+              id="page-size"
+              className="h-8 w-[72px]"
+              aria-label="Items per page"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

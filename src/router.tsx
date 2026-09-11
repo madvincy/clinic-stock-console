@@ -10,6 +10,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+    handle: {
+      title: 'Login | Clinic Stock Console',
+      description: 'Sign in to the Clinic Stock Console.',
+    },
   },
   {
     element: (
@@ -18,9 +22,31 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: '/', element: <StockListPage /> },
-      { path: '/items/:id', element: <ItemDetailPage /> },
-      { path: '/profile', element: <UserProfilePage /> },
+      {
+        path: '/',
+        element: <StockListPage />,
+        handle: {
+          title: 'Stock | Clinic Stock Console',
+          description: 'View and manage clinic stock inventory.',
+        },
+      },
+      {
+        path: '/items/:id',
+        element: <ItemDetailPage />,
+        handle: {
+          title: 'Item Details | Clinic Stock Console',
+          description:
+            'View clinic stock item details and inventory information.',
+        },
+      },
+      {
+        path: '/profile',
+        element: <UserProfilePage />,
+        handle: {
+          title: 'My Profile | Clinic Stock Console',
+          description: 'View and manage your profile information.',
+        },
+      },
     ],
   },
 ])

@@ -27,12 +27,17 @@ interface UserMenuProps {
 
 function getDisplayName(user: UserMenuUser | null | undefined): string {
   if (!user) return 'User'
-  return `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.username || 'User'
+  return (
+    `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() ||
+    user.username ||
+    'User'
+  )
 }
 
 function getInitials(user: UserMenuUser | null | undefined): string {
   if (!user) return 'U'
-  const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase()
+  const initials =
+    `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase()
   return initials || 'U'
 }
 
@@ -68,7 +73,10 @@ export function UserMenu({ user }: UserMenuProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/profile')}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => navigate('/profile')}
+        >
           <UserIcon className="mr-2 h-4 w-4" />
           <span>View Profile</span>
         </DropdownMenuItem>

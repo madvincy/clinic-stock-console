@@ -30,10 +30,7 @@ function requestUrl(args: QueryArgs): string {
 function shouldSkipReauth(args: QueryArgs): boolean {
   const url = requestUrl(args)
 
-  return (
-    url.includes('/auth/login') ||
-    url.includes('/auth/refresh')
-  )
+  return url.includes('/auth/login') || url.includes('/auth/refresh')
 }
 
 const dynamicFetch: typeof fetch = (...args) => globalThis.fetch(...args)
@@ -65,13 +62,10 @@ function applyDelay(args: QueryArgs): QueryArgs {
   }
 
   const normalized: FetchArgs =
-    typeof args === 'string'
-      ? { url: args }
-      : { ...args }
+    typeof args === 'string' ? { url: args } : { ...args }
 
   const existingParams =
-    normalized.params &&
-    typeof normalized.params === 'object'
+    normalized.params && typeof normalized.params === 'object'
       ? normalized.params
       : {}
 
@@ -86,24 +80,19 @@ function applyDelay(args: QueryArgs): QueryArgs {
 
 let refreshInFlight: Promise<boolean> | null = null
 
-function clearAuthAndStore(api: { dispatch: (action: any) => void }) {
+function clearAuthAndStore(api: { dispatch: (action: unknown) => void }) {
   api.dispatch(logout())
   api.dispatch({ type: 'authApi/resetApiState' })
 }
 
 async function tryRefresh(
   api: Parameters<
-    BaseQueryFn<
-      string | FetchArgs,
-      unknown,
-      FetchBaseQueryError
-    >
+    BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>
   >[1]
 ): Promise<boolean> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
-      const { refreshToken } =
-        (api.getState() as AppState).auth
+      const { refreshToken } = (api.getState() as AppState).auth
 
       if (!refreshToken) {
         clearAuthAndStore(api)
@@ -159,29 +148,14 @@ export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
-> = async (
-  args,
-  api,
-  extraOptions
-) => {
-  let result = await rawBaseQuery(
-    applyDelay(args),
-    api,
-    extraOptions
-  )
+> = async (args, api, extraOptions) => {
+  let result = await rawBaseQuery(applyDelay(args), api, extraOptions)
 
-  if (
-    result.error?.status === 401 &&
-    !shouldSkipReauth(args)
-  ) {
+  if (result.error?.status === 401 && !shouldSkipReauth(args)) {
     const refreshed = await tryRefresh(api)
 
     if (refreshed) {
-      result = await rawBaseQuery(
-        applyDelay(args),
-        api,
-        extraOptions
-      )
+      result = await rawBaseQuery(applyDelay(args), api, extraOptions)
     } else {
       clearAuthAndStore(api)
     }

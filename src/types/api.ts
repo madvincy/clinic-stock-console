@@ -143,9 +143,7 @@ export type DummyJSONLoginRequest = {
 }
 
 /**
- * Application user.
- *
- * Authentication tokens are intentionally excluded because
+ *  Authentication tokens are intentionally excluded because
  * they belong to AuthState rather than the user object.
  */
 export type AuthUser = Omit<
@@ -153,8 +151,10 @@ export type AuthUser = Omit<
   'accessToken' | 'refreshToken'
 >
 
-export type DummyJSONProductsResponse =
-  PaginatedResponse<DummyJSONProduct, 'products'>
+export type DummyJSONProductsResponse = PaginatedResponse<
+  DummyJSONProduct,
+  'products'
+>
 
 // ── Application Domain Models ───────────────────────────────────────────────
 
@@ -175,9 +175,7 @@ export type StockListPage = PaginatedResponse<StockItem, 'items'>
 
 // ── Mapping Functions ───────────────────────────────────────────────────────
 
-export function mapDummyJSONToStockItem(
-  product: DummyJSONProduct
-): StockItem {
+export function mapDummyJSONToStockItem(product: DummyJSONProduct): StockItem {
   const {
     id,
     title: name,
@@ -205,13 +203,6 @@ export function mapDummyJSONToStockItem(
   }
 }
 
-/**
- * Converts a DummyJSON auth response into the application user model.
- *
- * IMPORTANT:
- * We only remove authentication tokens here.
- * Everything else returned by DummyJSON is preserved.
- */
 export function mapAuthResponseToUser(
   response: DummyJSONAuthResponse
 ): AuthUser {

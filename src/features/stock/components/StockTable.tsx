@@ -72,11 +72,17 @@ function SortableColumnHead({
   onSortChange: (sortBy: string, order: SortOrder) => void
 }) {
   if (!column.sortField) {
-    return <TableHead className={column.headerClassName}>{column.label}</TableHead>
+    return (
+      <TableHead className={column.headerClassName}>{column.label}</TableHead>
+    )
   }
 
   const isActive = sortBy === column.sortField
-  const ariaSort = !isActive ? 'none' : order === 'asc' ? 'ascending' : 'descending'
+  const ariaSort = !isActive
+    ? 'none'
+    : order === 'asc'
+      ? 'ascending'
+      : 'descending'
   const Icon = !isActive ? ArrowUpDown : order === 'asc' ? ArrowUp : ArrowDown
 
   function handleClick() {
@@ -171,7 +177,9 @@ function StockTableRow({
           <span className="min-w-0">
             <span className="block font-medium">{item.name}</span>
             <span className="block text-xs text-muted-foreground sm:hidden">
-              <span className="capitalize">{item.category.replaceAll('-', ' ')}</span>
+              <span className="capitalize">
+                {item.category.replaceAll('-', ' ')}
+              </span>
               {' · '}
               {formatPrice(item.unitPrice)}
             </span>

@@ -7,21 +7,16 @@ interface SearchBoxProps {
   onChange: (value: string) => void
 }
 
-/**
- * Stale-response guard: the debounced value is written into the `search` URL
- * param, which becomes the RTK Query argument for `searchProducts`. Each
- * distinct `q` is its own cache key, and `useSearchProductsQuery` aborts the
- * in-flight request when args change. A slower `?delay=2000` response for an
- * older query can still land in *its* cache entry, but this component (and the
- * list) only render the cache entry for the current URL — so a late "ga"
- * payload cannot overwrite the fresher "gau" results on screen.
- */
+/** Debounces typing before writing to the URL-backed search state. */
 export function SearchBox({ value, onChange }: SearchBoxProps) {
   const [draft, setDraft] = useState(value)
+  // Detects external value changes during render.
+  const [lastSyncedValue, setLastSyncedValue] = useState(value)
 
-  useEffect(() => {
+  if (value !== lastSyncedValue) {
+    setLastSyncedValue(value)
     setDraft(value)
-  }, [value])
+  }
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
