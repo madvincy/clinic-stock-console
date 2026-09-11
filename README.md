@@ -159,3 +159,68 @@ Typography uses Geist Variable (`@fontsource-variable/geist`) as the primary san
 - `.github/workflows/ci.yml` - GitHub Actions CI pipeline
 
 > Note: the shadcn CLI resolves path aliases from the **root** `tsconfig.json`, not from `tsconfig.app.json` alone — both files declare the `@/*` alias to keep CLI tooling and the actual TypeScript build in agreement.
+
+### 1. AI Usage by Section
+
+- **Section 1 (Design & Architecture):**
+  - **Usage:** Used AI as a sparring partner to pressure-test state management strategies (URL state vs. global state) and data-fetching layer patterns (TanStack Query stale-while-revalidate strategy) for handling high-latency scenarios.
+  - **Intent:** Evaluated trade-offs for token renewal flows and query parameter synchronization before writing the design spec.
+
+- **Section 2 (Build & Implementation):**
+  - **Usage:** Leveraged AI primarily for low-level visual/CSS utility generation, boilerplate TypeScript interface definitions derived from the DummyJSON schema, and rapid setup of boilerplate test scaffolding.
+  - **Intent:** Used for targeted debugging of complex edge cases, such as handling race conditions during rapid typing in the search box using RxJS/debounced hooks, and configuring complex Husky/Commitlint hook behavior.
+
+- **Section 3 (Deployment & CI/CD):**
+  - **Usage:** Used AI to generate base GitHub Actions workflow YAML syntax for testing, linting, formatting checks, and Vercel deployment hooks.
+  - **Intent:** Streamlined workflow syntax configuration while keeping build-step verification manual.
+
+- **Section 4 (Reflection):**
+  - **Usage:** Self-authored directly. Formatted and structured for conciseness and clarity using AI tools without altering underlying decisions or engineering takeaways.
+
+---
+
+### 2. Tools & Workflow Structuring
+
+- **Tools Used:** Claude 3.5 Sonnet / OpenAI ChatGPT (via direct chat interfaces) for architectural ideation and rapid debugging. No full-agent workflow frameworks or spec-driven generation engines (e.g., BMAD, OpenSpec, GSD) were used.
+- **Workflow Structure:**
+  1. **Domain & Spec First:** Outlined core architecture, routing structure, state ownership, and error boundary boundaries manually in the README prior to writing code.
+  2. **Iterative Scaffolding:** Used AI to quickly stub out component interfaces, types, and setup configs.
+  3. **Manual Implementation & AI Pair-Debugging:** Wrote domain and business logic manually. When encountering complex runtime issues (e.g., race conditions on API delays or token refresh loops), pasted specific code blocks into the AI for isolation and root-cause analysis.
+
+---
+
+### 3. Example of AI Improving the Work
+
+- **Prompt Given:**
+
+  > _"I am building an inventory console over a mock API that delays requests up to 5000ms (`?delay=5000`). How should I architect the token refresh flow using TanStack Query and Axios interceptors so that a background silent token refresh never causes duplicate requests or drops active user UI input state?"_
+
+- **How it Improved the Work:**
+  The AI suggested implementing a queue mechanism within the Axios response interceptor for `401 Unauthorized` errors. Instead of failing immediately or triggering multiple concurrent `/auth/refresh` calls when parallel queries fail, it proposed holding failed requests in a promise queue while a single refresh request resolves, then replaying them seamlessly. This prevented erratic UI state resets and flickering when tokens expired during heavy browsing on simulated high-latency networks.
+
+---
+
+### 4. Example of Incorrect / Subtly Flawed AI Output
+
+- **The Issue:** When asking for a strategy to synchronize URL query parameters (search, category, page, sorting) with TanStack Query state, the AI suggested binding `useEffect` hooks directly to URL parameter changes to trigger manual re-fetching via `queryClient.fetchQuery()`.
+- **How it Was Caught:** During manual testing with simulated network delays (`?delay=2000`), rapidly changing categories resulted in race conditions—earlier requests resolved _after_ later requests, leaving the user viewing data for a category they had already deselected.
+- **Resolution:** Discarded the AI's imperative `useEffect` pattern. Replaced it with a purely declarative setup where URL query params serve as the single source of truth and are passed directly into the React Query `queryKey` array (`['products', { category, search, sort, page }]`). React Query’s internal cancellation and request key tracking automatically handled out-of-order responses.
+
+---
+
+### 5. Decisions Made Without AI
+
+1.  **URL Query Parameters as the Single Source of Truth for Filtering/Pagination:**
+    - _Reasoning:_ AI models frequently propose global state stores (Zustand/Redux) or local `useState` for search and filter inputs. I explicitly opted to put all filtering, sorting, and pagination state into URL parameters (`?q=`, `?category=`, `?sort=`, `?page=`). This satisfies requirement #3 natively (allowing direct link sharing via chat and browser refreshes) without complex state-hydration synchronization logic.
+
+2.  **Optimistic UI Updates for Stock Corrections with Rollback Boundaries:**
+    - _Reasoning:_ When updating stock via `PUT /products/{id}`, the AI suggested a simple standard loading spinner until completion. I chose to implement optimistic cache mutation (updating local UI immediately upon submit, rolling back on error with a clear toast message). On ward tablets over unstable clinic Wi-Fi, instant feedback prevents users from double-submitting stock adjustments.
+
+---
+
+### 6. Codebase Defense & Known Limitations
+
+- **Target Location:** `src/pages/loginpage- background components` (or equivalent URL state hook)
+- **Why it is Hard to Defend:**
+  use AI to generate stylings and animations for the login page background.
+  shadcn ui components - autogenerated ui components
