@@ -50,7 +50,7 @@ export default function LoginPage() {
           <h1 className="text-xl font-bold tracking-tight">
             Clinic Stock Console
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in</p>
+          <h2 className="mt-1 text-sm text-muted-foreground">Sign in</h2>
         </div>
 
         <div className="rounded-xl border bg-card p-6 shadow-sm">
