@@ -11,6 +11,18 @@ import type {
 
 import { userUpdated, logout } from './authSlice'
 
+function isUnauthorizedError(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'error' in err &&
+    typeof err.error === 'object' &&
+    err.error !== null &&
+    'status' in err.error &&
+    err.error.status === 401
+  )
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
 
@@ -55,7 +67,7 @@ export const authApi = createApi({
 
           dispatch(userUpdated(data))
         } catch (err: unknown) {
-          if (err?.error?.status === 401) {
+          if (isUnauthorizedError(err)) {
             dispatch(logout())
           }
         }
@@ -65,13 +77,7 @@ export const authApi = createApi({
     /**
      * Refresh authentication tokens.
      */
-    refresh: builder.mutation<
-      DummyJSONRefreshResponse,
-      {
-        refreshToken: string
-        expiresInMins?: number
-      }
-    >({
+    refresh: builder.mutation<DummyJSONRefreshResponse, { refreshToken: string; expiresInMins?: number }>({
       query: (data) => ({
         url: '/auth/refresh',
         method: 'POST',
