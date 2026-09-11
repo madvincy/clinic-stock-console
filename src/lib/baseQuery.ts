@@ -4,62 +4,109 @@ import {
   type FetchArgs,
   type FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react'
+
 import {
   API_BASE_URL,
   LOGIN_EXPIRES_IN_MINS,
   getDefaultDelayMs,
 } from '@/lib/apiClient'
+
 import {
   logout,
   sessionEstablished,
   type AuthState,
 } from '@/features/auth/authSlice'
 
-type AppState = { auth: AuthState }
+type AppState = {
+  auth: AuthState
+}
 
-function requestUrl(args: string | FetchArgs): string {
+type QueryArgs = string | FetchArgs
+
+function requestUrl(args: QueryArgs): string {
   return typeof args === 'string' ? args : args.url
 }
 
-function shouldSkipReauth(args: string | FetchArgs): boolean {
+function shouldSkipReauth(args: QueryArgs): boolean {
   const url = requestUrl(args)
-  return url.includes('/auth/login') || url.includes('/auth/refresh')
+
+  return (
+    url.includes('/auth/login') ||
+    url.includes('/auth/refresh')
+  )
 }
+
+const dynamicFetch: typeof fetch = (...args) => globalThis.fetch(...args)
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
+  fetchFn: dynamicFetch,
+
   prepareHeaders: (headers, { getState }) => {
     const { accessToken } = (getState() as AppState).auth
+
     if (accessToken) {
       headers.set('Authorization', `Bearer ${accessToken}`)
     }
+
     return headers
   },
 })
 
-function applyDelay(args: string | FetchArgs): string | FetchArgs {
+function applyDelay(args: QueryArgs): QueryArgs {
+  if (import.meta.env.MODE === 'test') {
+    return args
+  }
+
   const delay = getDefaultDelayMs()
-  if (delay === undefined) return args
-  const normalized: FetchArgs = typeof args === 'string' ? { url: args } : { ...args }
-  const params =
-    normalized.params && typeof normalized.params === 'object'
-      ? { delay, ...normalized.params }
-      : { delay }
-  return { ...normalized, params }
+
+  if (delay === undefined) {
+    return args
+  }
+
+  const normalized: FetchArgs =
+    typeof args === 'string'
+      ? { url: args }
+      : { ...args }
+
+  const existingParams =
+    normalized.params &&
+    typeof normalized.params === 'object'
+      ? normalized.params
+      : {}
+
+  return {
+    ...normalized,
+    params: {
+      ...existingParams,
+      delay,
+    },
+  }
 }
 
 let refreshInFlight: Promise<boolean> | null = null
 
+function clearAuthAndStore(api: { dispatch: (action: any) => void }) {
+  api.dispatch(logout())
+  api.dispatch({ type: 'authApi/resetApiState' })
+}
+
 async function tryRefresh(
   api: Parameters<
-    BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>
+    BaseQueryFn<
+      string | FetchArgs,
+      unknown,
+      FetchBaseQueryError
+    >
   >[1]
 ): Promise<boolean> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
-      const { refreshToken } = (api.getState() as AppState).auth
+      const { refreshToken } =
+        (api.getState() as AppState).auth
+
       if (!refreshToken) {
-        api.dispatch(logout())
+        clearAuthAndStore(api)
         return false
       }
 
@@ -86,6 +133,7 @@ async function tryRefresh(
           accessToken: string
           refreshToken: string
         }
+
         api.dispatch(
           sessionEstablished({
             accessToken: data.accessToken,
@@ -93,10 +141,11 @@ async function tryRefresh(
             expiresInMins: LOGIN_EXPIRES_IN_MINS,
           })
         )
+
         return true
       }
 
-      api.dispatch(logout())
+      clearAuthAndStore(api)
       return false
     })().finally(() => {
       refreshInFlight = null
@@ -110,20 +159,37 @@ export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
-> = async (args, api, extraOptions) => {
-  let result = await rawBaseQuery(applyDelay(args), api, extraOptions)
+> = async (
+  args,
+  api,
+  extraOptions
+) => {
+  let result = await rawBaseQuery(
+    applyDelay(args),
+    api,
+    extraOptions
+  )
 
-  if (result.error?.status === 401 && !shouldSkipReauth(args)) {
+  if (
+    result.error?.status === 401 &&
+    !shouldSkipReauth(args)
+  ) {
     const refreshed = await tryRefresh(api)
+
     if (refreshed) {
-      result = await rawBaseQuery(applyDelay(args), api, extraOptions)
+      result = await rawBaseQuery(
+        applyDelay(args),
+        api,
+        extraOptions
+      )
+    } else {
+      clearAuthAndStore(api)
     }
   }
 
   return result
 }
 
-/** Test-only: clear the in-flight refresh mutex between cases. */
 export function resetRefreshMutex(): void {
   refreshInFlight = null
 }

@@ -1,12 +1,16 @@
 /**
- * Runtime toggle for simulating a slow network. When enabled, apiClient's
- * getDefaultDelayMs() returns SIMULATED_DELAY_MS, which gets attached as
- * ?delay= to every request — lets testers exercise loading/skeleton states
- * and the search race-condition guard without setting VITE_API_DELAY and
- * restarting the dev server.
+ * Runtime toggle for simulating a slow network.
+ *
+ * When enabled, apiClient's getDefaultDelayMs() returns
+ * SIMULATED_DELAY_MS, which gets attached as ?delay= to requests.
+ *
+ * This lets testers exercise loading/skeleton states and the
+ * search race-condition guard without setting VITE_API_DELAY
+ * and restarting the dev server.
  */
 
 const STORAGE_KEY = 'clinic-stock-console:simulate-slow-network'
+
 export const SIMULATED_DELAY_MS = 2000
 
 type Listener = () => void
@@ -14,7 +18,10 @@ type Listener = () => void
 const listeners = new Set<Listener>()
 
 function readStored(): boolean {
-  if (typeof window === 'undefined') return false
+  if (typeof window === 'undefined') {
+    return false
+  }
+
   return window.sessionStorage.getItem(STORAGE_KEY) === '1'
 }
 
@@ -29,11 +36,16 @@ export function isSlowNetworkSimulationEnabled(): boolean {
 }
 
 export function setSlowNetworkSimulation(next: boolean): void {
-  if (next === enabled) return
+  if (next === enabled) {
+    return
+  }
+
   enabled = next
+
   if (typeof window !== 'undefined') {
     window.sessionStorage.setItem(STORAGE_KEY, next ? '1' : '0')
   }
+
   emit()
 }
 
@@ -41,7 +53,12 @@ export function toggleSlowNetworkSimulation(): void {
   setSlowNetworkSimulation(!enabled)
 }
 
-export function subscribeSlowNetworkSimulation(listener: Listener): () => void {
+export function subscribeSlowNetworkSimulation(
+  listener: Listener
+): () => void {
   listeners.add(listener)
-  return () => listeners.delete(listener)
+
+  return () => {
+    listeners.delete(listener)
+  }
 }

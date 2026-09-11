@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -19,7 +20,8 @@ const schema = z.object({
     .min(0, 'Stock cannot be negative'),
 })
 
-type FormValues = z.infer<typeof schema>
+type FormInput = z.input<typeof schema>
+type FormOutput = z.output<typeof schema>
 
 interface StockCorrectionFormProps {
   currentQuantity: number
@@ -32,10 +34,14 @@ export function StockCorrectionForm({
   isSaving,
   onSubmit,
 }: StockCorrectionFormProps) {
-  const form = useForm<FormValues>({
+  const form = useForm<FormInput, unknown, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: { quantityOnHand: currentQuantity },
   })
+
+  useEffect(() => {
+    form.reset({ quantityOnHand: currentQuantity })
+  }, [currentQuantity, form])
 
   return (
     <Form {...form}>
@@ -49,7 +55,7 @@ export function StockCorrectionForm({
         <FormField
           control={form.control}
           name="quantityOnHand"
-          render={({ field }) => (
+          render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
               <FormLabel>Corrected stock count</FormLabel>
               <FormControl>
@@ -59,6 +65,8 @@ export function StockCorrectionForm({
                   step={1}
                   inputMode="numeric"
                   disabled={isSaving}
+                  value={value as string | number | undefined}
+                  onChange={onChange}
                   {...field}
                 />
               </FormControl>
