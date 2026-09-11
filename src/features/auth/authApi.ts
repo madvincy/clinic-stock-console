@@ -60,7 +60,7 @@ export const authApi = createApi({
           const { data } = await queryFulfilled
 
           dispatch(userUpdated(data))
-        } catch(err: any) {
+        } catch(err: unknown) {
           if (err?.error?.status === 401) {
             dispatch(logout())
           }

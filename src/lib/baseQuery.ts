@@ -86,7 +86,7 @@ function applyDelay(args: QueryArgs): QueryArgs {
 
 let refreshInFlight: Promise<boolean> | null = null
 
-function clearAuthAndStore(api: { dispatch: (action: any) => void }) {
+function clearAuthAndStore(api: { dispatch: (action: unknown) => void }) {
   api.dispatch(logout())
   api.dispatch({ type: 'authApi/resetApiState' })
 }

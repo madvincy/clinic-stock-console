@@ -143,9 +143,7 @@ export type DummyJSONLoginRequest = {
 }
 
 /**
- * Application user.
- *
- * Authentication tokens are intentionally excluded because
+ *  Authentication tokens are intentionally excluded because
  * they belong to AuthState rather than the user object.
  */
 export type AuthUser = Omit<
@@ -205,13 +203,6 @@ export function mapDummyJSONToStockItem(
   }
 }
 
-/**
- * Converts a DummyJSON auth response into the application user model.
- *
- * IMPORTANT:
- * We only remove authentication tokens here.
- * Everything else returned by DummyJSON is preserved.
- */
 export function mapAuthResponseToUser(
   response: DummyJSONAuthResponse
 ): AuthUser {
