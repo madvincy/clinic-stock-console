@@ -1,9 +1,17 @@
 /**
  * Base fetch wrapper for DummyJSON.
- * Default origin is https://dummyjson.com, overridable with VITE_API_BASE_URL.
- * `delay` (or VITE_API_DELAY) is forwarded as `?delay=` for slow-response testing.
+ *
+ * Default origin is https://dummyjson.com, overridable with
+ * VITE_API_BASE_URL.
+ *
+ * `delay` (or VITE_API_DELAY) is forwarded as ?delay= for
+ * slow-response testing.
  */
-import { isSlowNetworkSimulationEnabled, SIMULATED_DELAY_MS } from '@/lib/apiDelay'
+
+import {
+  isSlowNetworkSimulationEnabled,
+  SIMULATED_DELAY_MS,
+} from '@/lib/apiDelay'
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'https://dummyjson.com'
@@ -12,13 +20,31 @@ export const LOGIN_EXPIRES_IN_MINS = 1
 
 export const PAGE_SIZE = 10
 
+/**
+ * Returns the default API delay.
+ *
+ * Tests must never inherit the runtime slow-network simulation,
+ * otherwise Testing Library's default async timeout can expire
+ * before mocked requests complete.
+ */
 export function getDefaultDelayMs(): number | undefined {
-  if (isSlowNetworkSimulationEnabled()) {
-    return SIMULATED_DELAY_MS // returns 2000 ms
+  // Never simulate network latency during Vitest.
+  if (import.meta.env.MODE === 'test') {
+    return undefined
   }
+
+  if (isSlowNetworkSimulationEnabled()) {
+    return SIMULATED_DELAY_MS
+  }
+
   const raw = import.meta.env.VITE_API_DELAY
-  if (!raw) return undefined
+
+  if (!raw) {
+    return undefined
+  }
+
   const parsed = Number(raw)
+
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
 }
 
@@ -26,7 +52,9 @@ export function withDelayParams(
   params?: Record<string, string | number | boolean | undefined>
 ): Record<string, string | number | boolean> {
   const delay = getDefaultDelayMs()
+
   const next: Record<string, string | number | boolean> = {}
+
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== '') {
@@ -34,9 +62,11 @@ export function withDelayParams(
       }
     }
   }
+
   if (delay !== undefined && next.delay === undefined) {
     next.delay = delay
   }
+
   return next
 }
 
@@ -48,13 +78,19 @@ export interface RequestOptions {
 }
 
 export class ApiError extends Error {
+  status: number
+  statusText: string
+
   constructor(
-    public status: number,
-    public statusText: string,
+    status: number,
+    statusText: string,
     message?: string
   ) {
     super(message || `API Error: ${status} ${statusText}`)
+
     this.name = 'ApiError'
+    this.status = status
+    this.statusText = statusText
   }
 }
 
@@ -62,10 +98,17 @@ export async function apiClient<T = unknown>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = 'GET', headers = {}, body, delay } = options
+  const {
+    method = 'GET',
+    headers = {},
+    body,
+    delay,
+  } = options
 
   const url = new URL(endpoint, API_BASE_URL)
+
   const delayMs = delay ?? getDefaultDelayMs()
+
   if (delayMs) {
     url.searchParams.set('delay', String(delayMs))
   }
@@ -85,7 +128,9 @@ export async function apiClient<T = unknown>(
   const response = await fetch(url.toString(), fetchOptions)
 
   let data: unknown
+
   const contentType = response.headers.get('content-type')
+
   if (contentType?.includes('application/json')) {
     data = await response.json()
   } else {
@@ -96,8 +141,12 @@ export async function apiClient<T = unknown>(
     throw new ApiError(
       response.status,
       response.statusText,
-      typeof data === 'object' && data !== null && 'message' in data
-        ? String((data as Record<string, unknown>).message)
+      typeof data === 'object' &&
+        data !== null &&
+        'message' in data
+        ? String(
+            (data as Record<string, unknown>).message
+          )
         : undefined
     )
   }
@@ -109,7 +158,10 @@ export function apiGet<T = unknown>(
   endpoint: string,
   delay?: number
 ): Promise<T> {
-  return apiClient<T>(endpoint, { method: 'GET', delay })
+  return apiClient<T>(endpoint, {
+    method: 'GET',
+    delay,
+  })
 }
 
 export function apiPost<T = unknown>(
@@ -117,7 +169,11 @@ export function apiPost<T = unknown>(
   body?: unknown,
   delay?: number
 ): Promise<T> {
-  return apiClient<T>(endpoint, { method: 'POST', body, delay })
+  return apiClient<T>(endpoint, {
+    method: 'POST',
+    body,
+    delay,
+  })
 }
 
 export function apiPut<T = unknown>(
@@ -125,10 +181,17 @@ export function apiPut<T = unknown>(
   body?: unknown,
   delay?: number
 ): Promise<T> {
-  return apiClient<T>(endpoint, { method: 'PUT', body, delay })
+  return apiClient<T>(endpoint, {
+    method: 'PUT',
+    body,
+    delay,
+  })
 }
 
-export function getRtkErrorMessage(error: unknown, fallback: string): string {
+export function getRtkErrorMessage(
+  error: unknown,
+  fallback: string
+): string {
   if (
     typeof error === 'object' &&
     error !== null &&
@@ -137,8 +200,11 @@ export function getRtkErrorMessage(error: unknown, fallback: string): string {
     error.data !== null &&
     'message' in error.data
   ) {
-    return String((error.data as { message: unknown }).message)
+    return String(
+      (error.data as { message: unknown }).message
+    )
   }
+
   if (
     typeof error === 'object' &&
     error !== null &&
@@ -147,12 +213,25 @@ export function getRtkErrorMessage(error: unknown, fallback: string): string {
   ) {
     return 'Network error. Check your connection and try again.'
   }
+
   return fallback
 }
 
-/** Only same-origin relative paths; rejects protocol-relative URLs. */
-export function safeRedirectTo(value: string | null | undefined): string {
-  if (!value) return '/'
+/**
+ * Only same-origin relative paths.
+ *
+ * Rejects:
+ * - absolute URLs
+ * - protocol-relative URLs
+ * - malformed encoded values that cannot be decoded
+ */
+export function safeRedirectTo(
+  value: string | null | undefined
+): string {
+  if (!value) {
+    return '/'
+  }
+
   const decoded = (() => {
     try {
       return decodeURIComponent(value)
@@ -160,8 +239,13 @@ export function safeRedirectTo(value: string | null | undefined): string {
       return value
     }
   })()
-  if (!decoded.startsWith('/') || decoded.startsWith('//')) {
+
+  if (
+    !decoded.startsWith('/') ||
+    decoded.startsWith('//')
+  ) {
     return '/'
   }
+
   return decoded
 }

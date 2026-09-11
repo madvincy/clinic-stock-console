@@ -9,7 +9,7 @@ import type {
   DummyJSONRefreshResponse,
 } from '@/types/api'
 
-import { userUpdated } from './authSlice'
+import { userUpdated, logout } from './authSlice'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -60,9 +60,10 @@ export const authApi = createApi({
           const { data } = await queryFulfilled
 
           dispatch(userUpdated(data))
-        } catch {
-          // RTK Query exposes the request error through the hook.
-          // Nothing needs to be dispatched here.
+        } catch(err: any) {
+          if (err?.error?.status === 401) {
+            dispatch(logout())
+          }
         }
       },
     }),

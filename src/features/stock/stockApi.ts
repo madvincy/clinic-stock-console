@@ -193,10 +193,9 @@ export const stockApi = createApi({
         }
 
         try {
-          // DummyJSON PUT is not persisted. Do not invalidate/refetch on
-          // success or the optimistic quantity would be clobbered by GET.
           await queryFulfilled
         } catch {
+          // Reverts all optimistic patches when the promise rejects
           patches.forEach((patch) => patch.undo())
         }
       },

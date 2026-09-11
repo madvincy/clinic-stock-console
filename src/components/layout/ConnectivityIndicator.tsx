@@ -11,7 +11,6 @@ interface ConnectivityIndicatorProps {
 
 export function ConnectivityIndicator({
   isOnline,
-  networkDetails,
   isDelaySimulated,
   onToggleDelaySimulation,
 }: ConnectivityIndicatorProps) {
