@@ -20,11 +20,10 @@ export default {
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
     'scope-case': [2, 'always', 'lower-case'],
-    'subject-case': [2, 'never', 'start-case', 'pascal-case', 'upper-case'],
+    'subject-case': [2, 'never', ['start-case', 'pascal-case', 'upper-case']],
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'body-leading-blank': [2, 'always'],
     'footer-leading-blank': [2, 'always'],
   },
 }
-
